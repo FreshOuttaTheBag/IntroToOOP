@@ -1,0 +1,128 @@
+/* 								GROUP NAMES: AUSTIN FOPPE & COREY COLESON 							*/
+
+
+
+
+import java.util.Scanner;
+import java.io.PrintStream;
+import java.io.File;
+class Entry {
+    public String name, number, notes;
+}
+public class Phonebook {
+	public static void WritePhoneBook(String FileName) throws Exception {
+		 PrintStream P = new PrintStream(FileName);
+		 for (int i=0; i < entryList.length; i++) {
+			if (entryList[i] != null) {
+				P.println(entryList[i].name + "\t" + 
+						  entryList [i].number + "\t" + 
+						  entryList [i].notes);
+			}
+		}
+		P.close();
+		System.out.println("Phonebook stored.");
+	}
+	public static void readPhoneBook (String FileName) throws Exception {
+		int i = 0;
+		File f = new File(FileName); 
+		Scanner fileScanner = new Scanner(f);
+		while (fileScanner.hasNextLine()) {
+			Entry entry = new Entry();
+			entry.name = fileScanner.next();
+			entry.number = fileScanner.next();
+			entry.notes = fileScanner.nextLine().trim();
+			entryList[i] = entry;
+			i++;
+		}
+		fileScanner.close();
+	}
+	public static Entry[] entryList = new Entry[200];
+    public static void main(String[] args) {
+    	try {
+    		readPhoneBook("EntryFile.txt");
+    	} catch (Exception readError) {
+    		System.out.println("readError: there was an error when realing the file");
+    	}
+        Scanner inputScanner = new Scanner(System.in);
+        System.out.println("Codes are entered as 1 to 8 characters.\nUse \"e\" for enter, \"f\" for find, \"l\" for list, \"q\" for quit. ");
+        
+        // arrayNum is an array helper
+        int arrayNum = 0;
+        // boolean for quit before do loop
+        boolean quit = false;
+        do {
+            //store input as a variable
+            System.out.print("\nCommand: ");
+            String input = inputScanner.nextLine();
+
+            //store the first char of the input as command
+            char commandInput = input.charAt(0);
+
+                        /*    STORE THE NAME USED IN THE INPUT    */
+              //may need to check for spaces but works for now :)
+            String name = "";
+            for (int i = 2; i < input.length(); i++) {
+                String characterAt = Character.toString(input.charAt(i));
+                if (characterAt != " ") {
+                	name = name + characterAt;
+                }
+            }
+            String nameL = name.toLowerCase();
+            //add i at the end of every if statement
+            /* RUN ENTRY COMMAND */
+            if (commandInput == 'e') {
+                System.out.print("Enter number: ");
+                String number = inputScanner.nextLine();
+                System.out.print("Enter notes: ");
+                String notes = inputScanner.nextLine();
+                Entry entry = new Entry();
+                entry.name = name;
+                entry.number = number;
+                entry.notes = notes;
+                entryList[arrayNum] = entry;
+                //System.out.println(entry.name + " " + entry.number + " " + entry.notes);
+                //System.out.println("this is the entryListname " + entryList[arrayNum].name);
+                arrayNum++;
+            } else if (commandInput == 'f') {
+            	/*						 RUN SEARCH COMMAND 					*/
+                for (int i=0; i < entryList.length; i++) {
+                	if (entryList[i] != null) {
+                		String currName = entryList[i].name.toLowerCase();
+                		if (currName.equals(nameL)) {
+                			System.out.println("-- " + entryList[i].name);
+                			System.out.println("-- " + entryList[i].number);
+                			System.out.println("-- " + entryList[i].notes);
+                			System.out.print("\n");
+                		}
+                	}
+                }
+        
+            } else if (commandInput == 'l') {
+            	/*						RUN LIST COMMAND						*/
+            	System.out.print("\n");
+            	for (int i=0;i<entryList.length;i++) {
+                	if (entryList[i] != null) {
+                		System.out.println("-- " + entryList[i].name);
+                		System.out.println("-- " + entryList[i].number);
+                		System.out.println("-- " + entryList[i].notes);
+                		System.out.print("\n");
+                	}
+                }
+            } else if (commandInput == 'q') {
+            	/* 						RUN QUIT COMMAND 						*/
+            	//write to the phonebook after using exception handling 
+            	try {
+            		WritePhoneBook("EntryFile.txt");
+            	} catch(Exception writeError) {
+            		System.out.println("writeError: error in writing to the file");
+            	}
+                quit = true;
+            } else  {
+            	System.out.print("Please enter a valid command");
+            }
+        } while (quit != true);
+        inputScanner.close();
+    }
+}
+
+
