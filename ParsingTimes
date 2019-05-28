@@ -1,0 +1,37 @@
+import java.util.Scanner;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+public class ParsingTimes {
+	public static String time() throws Exception{
+		String output ="";
+		Scanner input = new Scanner(System.in);
+		
+		System.out.println("Enter the time in the format hours:minutes AM/PM, e.g. 7:06 PM ");
+		String timeInput = input.nextLine().toUpperCase().trim();
+		
+		LocalTime localTime = LocalTime.parse(timeInput, DateTimeFormatter.ofPattern("h:mm a"));
+	    int hour = localTime.get(ChronoField.CLOCK_HOUR_OF_DAY);
+	    double minute = localTime.get(ChronoField.MINUTE_OF_HOUR);
+	    minute = minute/60;
+	    
+	    String tempString = Double.toString(minute);
+	    StringBuilder minString = new StringBuilder(tempString);
+	    if (minString.length() > 4) {
+	    	minString.delete(4, (minString.length() - 4));
+	    }
+	    minString.deleteCharAt(0);
+	    output = hour+minute+" hours have elapsed from start of day.";
+	    input.close();
+	    
+		return output;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			System.out.println(time());
+		} catch(Exception error) {
+			System.out.println("Please enter your time in the format hours:minutes AM/PM e.g 7:06 PM");
+		}
+	}
+}
