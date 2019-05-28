@@ -1,0 +1,637 @@
+//package application;
+
+/* 								GROUP NAMES: AUSTIN FOPPE & COREY COLESON 							*/
+
+/*							it should be noted that our merge and alphabetize commands are automatic/ bound to our entry submit button */
+import java.util.Scanner;
+import java.io.PrintStream;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
+import javafx.scene.control.TextField;
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+//import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.text.Font;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+
+class Entry {
+    public String name, lastName, number, notes;
+}
+
+
+public class Phonebook extends Application {	 
+	
+public static int arrayNum = 0;
+	
+public static String listOutput = "";
+
+	 /*				READ PHONEBOOK		*/
+	 public static int readPhoneBook (String PhoneBook) throws Exception {
+	
+		int i = 0;
+		File f = new File(PhoneBook); 
+		Scanner fileScanner = new Scanner(f);
+		while (fileScanner.hasNextLine()) {
+			Entry entry = new Entry();
+			entry.name = fileScanner.next();
+			entry.lastName = fileScanner.next();
+			entry.number = fileScanner.next();
+			entry.notes = fileScanner.nextLine().trim();
+			//arrayNumStr = fileScanner.nextLine().trim();
+			entryList[i] = entry;
+			i++;
+			arrayNum++;
+		}
+		fileScanner.close();
+		return arrayNum;
+	}
+	
+	/*				WRITE PHONEBOOK		*/
+	public static void writePhoneBook(String FileName) throws Exception {
+		PrintStream P = new PrintStream(FileName);
+		for (int i=0; i < entryList.length; i++) {
+			if (entryList[i] != null) {
+				P.println(entryList[i].name + "\t" + 
+						  entryList[i].lastName + "\t" +
+						  entryList[i].number + "\t" + 
+						  entryList[i].notes + "\t");
+			}
+		}
+		
+		//P.print(Integer.toString(arrayNum));
+		P.close();
+		System.out.println("Phonebook stored.");
+	}
+	
+	/*						SEARCH COMMAND		*/		
+	public static void search(String firstName, String lastName, Label listLabel) {
+		if (firstName.equals("")) {
+			list(listLabel);
+		} else {
+			listOutput = "";
+			firstName = firstName.toLowerCase();
+			for (int i=0; i<entryList.length; i++) {
+				if (entryList[i] != (null)) {
+					if (firstName.equals(entryList[i].lastName.toLowerCase())) {
+						listOutput = listOutput  + "\n\n" + entryList[i].name + " " + entryList[i].lastName;
+		        		listOutput = listOutput + "\n" + entryList[i].number;
+		        		listOutput = listOutput + "\n" + entryList[i].notes;
+					}
+				}
+			}
+			lastName = lastName.toLowerCase();
+			for (int i=0; i < entryList.length; i++) {
+	        	if (entryList[i] != null) {
+	        		String currName = entryList[i].name.toLowerCase();
+	        		if (currName.equals(firstName) && (entryList[i].lastName.equals("!"))) {
+	        			listOutput = listOutput  + "\n\n"  + entryList[i].name;
+	        			listOutput = listOutput + "\n" + entryList[i].number;
+	        			listOutput = listOutput + "\n" + entryList[i].notes;
+	        		} else if (currName.equals(firstName)) {
+	        			listOutput = listOutput  + "\n\n" + entryList[i].name + " " + entryList[i].lastName;
+		        		listOutput = listOutput + "\n" + entryList[i].number;
+		        		listOutput = listOutput + "\n" + entryList[i].notes;
+	        			}
+	        		}
+	        	}
+			}
+			if (listOutput.equals("")) {
+				listOutput = "Entry not found";
+				deleteArmed = false;
+			} else {
+				deleteArmed = true;
+			}
+			listLabel.setText(listOutput);
+		}
+	
+	/*								MERGE					*/
+	public static void merge() {
+			for (int i=0; i < entryList.length; i++) {
+				if (entryList[i] != null) {
+					for (int k = 1; k < entryList.length; k++) {
+						if ((entryList[k] != null) && (entryList[i] != entryList[k])) {
+							// The first entry...
+							String currName = entryList[i].name.toLowerCase();
+							String currNumber = entryList[i].number;
+							String currLastName = entryList[i].lastName.toLowerCase();
+							// ...the next entry...
+							String nextName = entryList[k].name.toLowerCase();
+							String nextNumber = entryList[k].number;
+							String nextLastName = entryList[k].lastName.toLowerCase();
+							String nextNotes = entryList[k].notes;
+							//...checks and adds notes/number. This adds the number if it's different							
+							if ((currName.equals(nextName)) && currLastName.equals(nextLastName) && (currNumber !=(nextNumber)) ) {
+								if (entryList[k].notes.equals("")) {
+									entryList[i].notes = (entryList[i].notes+"; "+nextNumber);
+								} else {
+									entryList[i].notes = (entryList[i].notes+"; "+nextNotes+", "+nextNumber);
+								}
+									// HELP I NEED IT TO DELETE THE DUPLICATE ENTRY HERE
+								for (int p=k;p<entryList.length-1;p++){ 
+									entryList[p] = entryList[p+1];
+								}
+									// This just adds the notes if the number is the same
+							} else if (currName.equals(nextName) && currLastName.equals(nextLastName) && (currNumber.equals(nextNumber))) {
+									if (entryList[k].notes !=("")) {
+										entryList[i].notes = (entryList[i].notes+"; "+nextNotes);
+									} 
+									 // HELP I NEED IT TO DELETE THE DUPLICATE ENTRY HERE
+									for (int p=k;p<entryList.length-1;p++){ 
+										entryList[p] = entryList[p+1];
+									}
+							}
+						}
+					}
+				}
+			}
+		int o=0;
+		while (entryList[o] != null) {
+			
+			o++;
+		}
+		if (entryList[o+1] != null) {
+			entryList[o] = entryList[o+1];
+			entryList[o+1] = null;
+		}
+		
+	}
+	
+	/*								ALPHABETIZE				*/
+	public static void alpha5() {
+		List<Entry> newList = new ArrayList<Entry>();
+		int i=0;
+		while(entryList[i] != null) {
+			newList.add(entryList[i]);
+			i++;
+		}
+		
+		Collections.sort(newList, new Comparator<Entry>(){
+			
+			public int compare(Entry o1, Entry o2) 
+			{
+				return o1.name.compareTo(o2.name);
+			}
+			
+		});
+		for (int k=0;k<i;k++ ) {
+			entryList[k] = newList.get(k);
+		}
+	}
+	
+	
+	
+	/*						DELETE COMMAND				*/
+	public static boolean deleteArmed = false; //this will show whether an entry can be deleted or not
+	public static void delete(Label listLabel) {
+		if (deleteArmed != true) {
+			listOutput = "Please use the search bar \nto search for the entry \nyou would like to delete, \nthen press the delete button\nagain to delete it.";
+			listLabel.setText(listOutput);
+		} else {
+			int i=0;
+			Scanner listScanner = new Scanner(listOutput);
+			String name = listScanner.next();
+			String lastName = listScanner.next();
+			while (entryList[i] != null) {
+				if (name.equals(entryList[i].name)) {
+					break;
+				}
+				i++;
+			}
+			if (entryList[i].lastName.equals("!") && entryList[i].name.equals(name)) {
+				/* APPEND THE ENRTRY LIST	*/
+				int num = 0;
+				while (entryList[num] != null) {num++;} // makes the number of entries in temp array
+	
+				Entry[] tempArray = new Entry[num];
+	
+				for (int y=0;y<tempArray.length;y++) { tempArray[y] = entryList[y]; }// makes tempArray = arrayList up to null
+				for (int k=0;k<tempArray.length;k++) {
+					if (k == i) {
+						System.out.println("k = i");
+						k++;
+						
+						
+					} else {
+						entryList[i] = tempArray[k];
+					}
+					System.out.println(Arrays.toString(entryList));
+					System.out.println(Arrays.toString(tempArray));
+				}
+				if (i == 0 && entryList[i].equals(null)) {
+					entryList[1] = null;
+				} else {
+					for(int p=i;p<entryList.length-1;p++){ 
+						entryList[p] = entryList[p+1];
+					}
+				}
+				listLabel.setText("Entry Deleted!");
+			} else  {
+				String number = listScanner.next();
+				System.out.println(name + " " + lastName + " " + number);
+				i = 0;
+				//int crucialNum = 0;
+				while (entryList[i] != null) {
+					if (name.equals(entryList[i].name) && lastName.equals(entryList[i].lastName) && number.equals(entryList[i].number)) {
+						break;
+					}
+					i++;
+				}
+				/* APPEND THE ENRTRY LIST	*/
+				int num = 0;
+				while (entryList[num] != null) {num++;} // makes the number of entries in temp array
+	
+				Entry[] tempArray = new Entry[num];
+	
+				for (int y=0;y<tempArray.length;y++) { tempArray[y] = entryList[y]; }// makes tempArray = arrayList up to null
+				for (int k=0;k<tempArray.length;k++) {
+					if (k == i) {
+						System.out.println("k = i");
+						k++;
+						
+						
+					} else {
+						entryList[i] = tempArray[k];
+					}
+					System.out.println(Arrays.toString(entryList));
+					System.out.println(Arrays.toString(tempArray));
+				}
+				if (i == 0 && entryList[i].equals(null)) {
+					entryList[1] = null;
+				} else {
+					for(int p=i;p<entryList.length-1;p++){ 
+						entryList[p] = entryList[p+1];
+					}
+				}
+				listLabel.setText("Entry Deleted!");
+			}
+		}
+		System.out.println(Arrays.toString(entryList));
+		System.out.println("Done!");
+		if (arrayNum != 0) {
+			arrayNum --;
+		}
+		deleteArmed = false;
+	}
+	
+	 
+	 /*						ENTRY COMMAND				*/
+	public static void entry(String name, String lastName, String number, String notes) {//WHEN CALLING THIS MAKE SURE YOU ENTER THESE ARGUMENTS!!!
+	        Entry entry = new Entry();
+	        entry.name = name;
+	        entry.lastName = lastName;
+	        entry.number = number;
+	        entry.notes = notes;
+	        entryList[arrayNum] = entry;
+	        arrayNum++;
+	        
+	        	//alpha();
+	        
+	        
+	        //System.out.println(entry.name + " " + entry.number + " " + entry.notes);
+	        //System.out.println("this is the entryListname " + entryList[arrayNum].name);
+	}
+	
+	/*						LIST COMMAND			*/	
+	public static void list(Label listLabel) {
+		
+		listOutput = "";
+    	for (int i=0;i<entryList.length;i++) {
+    		if (entryList[i] != null) {
+    			if (entryList[i].lastName.equals("!")) {
+	    			listOutput = listOutput  + "\n\n" + entryList[i].name;
+	    			listOutput = listOutput + "\n" + entryList[i].number;
+	    			listOutput = listOutput + "\n" + entryList[i].notes;
+    			} else  {
+    				listOutput = listOutput  + "\n\n" + entryList[i].name + " " + entryList[i].lastName;
+	    			listOutput = listOutput + "\n" + entryList[i].number;
+	    			listOutput = listOutput + "\n" + entryList[i].notes;
+    			}
+    		}
+    	}
+        	//System.out.println(listOutput);
+        	listLabel.setText(listOutput);
+	}
+	
+/*					ERRORS IN ENTRIES				*/
+	
+	public static String errorMessage ="";
+	public static boolean errorEntry(String nameField, String number, String notes, Label errorLabel)  {
+		//nameField = nameParser(nameField);
+		errorMessage = "";
+		boolean error = false;
+		if (nameField.equals("")) {
+			errorMessage ="Error: The Name Field must have an input";
+			error = true;
+		}else {
+			for (int i=0;i<nameField.length();i++) {
+				char charAtI = nameField.charAt(i);
+				if (!Character.isLetter(charAtI)) {
+					if (charAtI != ' ') {
+						errorMessage = "Error : The name must not contain numbers or special characters";
+						error = true;
+					}
+				}
+			}
+		}
+		if (number.equals("")) {
+			errorMessage = "Error: The Number Field must have an input";
+		} else {
+			for (int i=0;i<number.length();i++) {
+				char charAtI = number.charAt(i);
+				if (!Character.isDigit(charAtI)) {
+					if (charAtI != '-') {
+						errorMessage = "Error: The number may only contain numbers and \"-\"";
+						error = true;
+					}
+				}
+			}
+		}
+		errorLabel.setText(errorMessage);
+		return error;
+	}
+
+	
+	/*						QUIT COMMAND				*/
+	public static void quit() {
+		/* 						RUN QUIT COMMAND 						*/
+    	//write to the phone book after using exception handling 
+        System.exit(0);
+        
+	}
+	
+	/* 					GET FIRST AND LAST NAMES		*/
+	
+	public static String getFirstName(String name) {
+		if (name.contains(" ")) {		
+			StringBuilder firstNameStr = new StringBuilder("");
+			int i = 0;
+			int lastNameStart = name.indexOf(" ");
+			while (lastNameStart > i)  {
+					firstNameStr.append(Character.toString(name.charAt(i)));
+					i++;
+			}
+			String firstName = new String(firstNameStr); 
+			System.out.println(firstName);
+			
+			return firstName;
+		} else {
+			String firstName = name;
+			return firstName;
+		}
+	}
+	
+	public static String getLastName(String name) {
+		if (name.contains(" ")) {
+			StringBuilder lastNameStr = new StringBuilder("");
+			int i = 0;
+			int lastNameStart = name.indexOf(" ");
+			i = lastNameStart + 1;
+			while ( i < name.length()) {
+				lastNameStr.append(Character.toString(name.charAt(i)));
+				i++;
+			}
+			String lastName = new String(lastNameStr);
+			System.out.println(lastName);
+			
+			return lastName;
+		} else {
+			return "!";
+		}
+	}
+	
+	
+	public static Entry[] entryList = new Entry[200];
+	public static void main(String[] args) {
+		Application.launch(args);
+	}
+	 
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		try {
+			arrayNum = readPhoneBook("PhoneBook.txt");
+		} catch (Exception readError) {
+			System.out.println("readError: there was an error when realing the file, if this is the first run, this is normal");
+		}
+		alpha5();
+		
+		primaryStage.setTitle("Phone Book");
+		primaryStage.setWidth(550);
+		primaryStage.setHeight(400);
+		 
+		BorderPane borderPane = new BorderPane();// this is basically the root pane
+		 
+		/* Text Area where the list will go */
+		
+		Label listLabel = new Label(listOutput);//this is the label that goes in the scroll pane
+		ScrollPane listPane = new ScrollPane();//this is the scroll pane that hosts our label/list
+		listPane.setVbarPolicy(ScrollBarPolicy.ALWAYS);//set scroll pane to always have vertical scrolling
+		listPane.setContent(listLabel); //set the list label to be in the scroll pane
+		 
+	    TextField searchField = new TextField("Find Entry by Name"); //this is the text field for searching
+		searchField.setPrefWidth(200);
+		Button searchButton = new Button("Search");
+		HBox searchBarBox = new HBox(searchField,searchButton);
+		
+		Button resetListButton = new Button("Show Full List");
+		Label bottomButtonSpacer = new Label("    ");
+		Button deleteEntryButton = new Button("Delete Entry");
+		HBox bottomListButtons = new HBox(resetListButton,bottomButtonSpacer,deleteEntryButton);
+		 
+		VBox rightSideVbox = new VBox(searchBarBox,listPane,bottomListButtons); //this vbox will house our hbox and our scrollpane
+		rightSideVbox.setSpacing(5);
+		 
+		list(listLabel);
+		 
+		 
+		 
+		 
+		/*  Entry Method Pane */
+		//initialize pane objects
+		Label entryNameLabel = new Label("Name");
+		Label entryNotesLabel = new Label("Notes");
+		Label entryNumberLabel = new Label("Number");
+		TextField entryNameField = new TextField("");
+		TextField entryNumberField = new TextField("");
+		TextField entryNotesField = new TextField("");
+		entryNameField.setPrefWidth(200);
+		entryNumberField.setPrefWidth(200);
+		entryNotesField.setPrefWidth(200);
+		//initialize pane
+		GridPane entryPane = new GridPane();
+		 
+		entryPane.add(entryNameLabel, 0, 0);
+		entryPane.add(entryNameField, 1, 0);
+		 
+		entryPane.add(entryNumberLabel, 0, 1);
+		entryPane.add(entryNumberField, 1, 1);
+		 
+		entryPane.add(entryNotesLabel, 0, 2);
+		entryPane.add(entryNotesField, 1, 2);
+		 
+		 
+		Label explainLabel = new Label("click submit to add a new entry ");
+		explainLabel.setFont(new Font("Arial", 13));
+		
+		Button entryButton = new Button("Submit");
+		HBox entryPaneSubmit = new HBox(explainLabel,entryButton);
+		Label errorLabel = new Label("");
+		errorLabel.setFont(new Font("Arial", 10));
+		// submit button gets text in field
+		 
+		/*Bottom Buttons*/
+		Button saveButton = new Button("Save");
+		Button quitButton = new Button("Quit");
+		HBox bottomBox = new HBox(saveButton,quitButton);		 
+		bottomBox.setSpacing(150);
+		Label filterBottomSpacer = new Label("           ");
+		 
+		VBox leftSideVbox = new VBox(entryPane,entryPaneSubmit,errorLabel,filterBottomSpacer,bottomBox);
+		leftSideVbox.setSpacing(5);
+		
+		/* Initializing the Root Pane */
+		borderPane.setLeft(leftSideVbox);
+		borderPane.setRight(rightSideVbox);
+		 
+		/*						QUIT STAGE/SCENE				*/
+		Stage quitStage = new Stage();
+		
+		quitStage.setTitle("Quit");
+		quitStage.setWidth(235);
+		quitStage.setHeight(130);
+		//quitStage.show();
+
+		
+		// remember to run quitStage.show() in quit button
+		Label askLabel = new Label("Are you sure you want to quit? \nAll unsaved work will be lost.\n");
+		Button cancelQuitButton = new Button("Cancel");
+		Button quitQuitButton = new Button("Quit");
+		Label quitButtonsSpacer = new Label("     	             ");
+		
+		
+		//two HBoxes in a VBox
+		HBox quitButtonsPane = new HBox(cancelQuitButton,quitButtonsSpacer,quitQuitButton);
+		VBox quitPane = new VBox(askLabel,quitButtonsPane);
+		
+		
+		
+		Scene quitScene = new Scene(quitPane);
+
+		quitStage.initModality(Modality.APPLICATION_MODAL);
+		quitStage.initOwner(primaryStage);
+		quitStage.setScene(quitScene);
+		
+		/* Quit Stage Button Actions		*/
+		
+		cancelQuitButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				quitStage.hide();
+			 }
+	     });
+		quitQuitButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				quit();
+			 }
+	     });
+		
+		/* Button Actions */
+		//save button
+		saveButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				 try {
+					 writePhoneBook("PhoneBook.txt");
+				 } catch (Exception writeError) {
+					 
+				 }
+			 }
+	     });
+		 //quit button
+		 quitButton.setOnAction(new EventHandler<ActionEvent>() {
+			 @Override
+			 public void handle(ActionEvent event) {
+				quitStage.show();
+			 }
+	     });
+		 // entry button
+		 entryButton.setOnAction(new EventHandler<ActionEvent>() {
+			 @Override
+			 public void handle(ActionEvent event) {
+				 	String number = entryNumberField.getText();
+					String notes = entryNotesField.getText();
+					String nameField = entryNameField.getText().trim();
+					String name = getFirstName(nameField);
+					String lastName = getLastName(nameField);
+					boolean entryError = errorEntry(nameField,number,notes,errorLabel);
+					if (entryError != true) {
+						System.out.println(name);
+						
+						System.out.println("LastName: " + lastName);
+						
+						entry(name,lastName,number,notes);
+						merge();
+						alpha5();
+						list(listLabel);
+						entryNameField.setText("");
+						entryNumberField.setText("");
+						entryNotesField.setText("");
+						errorLabel.setText("");
+					} else {
+						errorLabel.setText(errorMessage);
+					}
+			 }
+	     });
+		 // search button
+		 searchButton.setOnAction(new EventHandler<ActionEvent>() {
+			 @Override
+			 public void handle(ActionEvent event) {
+				String name = searchField.getText();
+				String firstName = getFirstName(name);
+				String lastName = getLastName(name);
+				search(firstName,lastName,listLabel); 
+
+			}
+	     });
+		 
+		 // when searchField is clicked, erase its text
+		 searchField.setOnMouseClicked(e -> {
+	           	searchField.setText("");
+	     });
+		 //delete Entry Button
+		 deleteEntryButton.setOnAction(new EventHandler<ActionEvent>() {
+			 @Override
+			 public void handle(ActionEvent event) {
+				 delete(listLabel);
+			}
+	     });
+		 // reset list button 
+		 resetListButton.setOnAction(new EventHandler<ActionEvent>() {
+			 @Override
+			 public void handle(ActionEvent event) {
+				list(listLabel);
+			}
+	     });
+		 
+		 Scene primaryScene = new Scene(borderPane);
+		 primaryStage.setScene(primaryScene);
+		 
+		 primaryStage.show();
+		  
+	 }
+}
